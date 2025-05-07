@@ -1,0 +1,628 @@
+{% load static %}
+<html>
+<html lang="ru">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Картографический сервис</title>
+        <script type="text/javascript" src={% static 'libs/jquery/dist/jquery.min.js' %}></script>
+        <link rel="icon" href="{% static 'icons/icon_black.png' %}"/>
+        <link rel="stylesheet" href={% static 'libs/bootstrap/dist/css/bootstrap.min.css' %} />
+        <link rel="stylesheet" href={% static 'libs/leaflet/leaflet.css' %} />
+        <script type="text/javascript" src={% static 'libs/bootstrap/dist/js/bootstrap.bundle.min.js' %}></script>
+        <script type="text/javascript" src={% static 'libs/leaflet/leaflet.js' %}></script>
+        <link rel="stylesheet" href="{% static 'libs/bootstrap-icons/font/bootstrap-icons.css' %}">
+    </head>
+    <body class="m-0 p-0">
+
+    <!--******************** ХЕДЕР ********************-->
+    <header class="m-0 p-0">
+        <div class="row text-center border-bottom m-0 p-0">
+            <strong class="fs-1">Картографический сервис ЦК АГиГИС</strong>
+        </div>
+    </header>
+    <!--******************************************-->
+
+
+        <div class="row m-0 p-0">
+
+            <!--********************ЛЕВАЯ ПАНЕЛЬ********************-->
+            <div class="col-lg-3 bg-light p-3" style="min-height: 100%">
+                <h4 class="text-center">Возможности</h4>
+                <p class="text-muted text-center">Кликните на функцию, чтобы раскрыть её</p>
+                <div class="list-group list-group flush scrollarea">
+
+
+                     <!--***********************************ОТОБРАЖЕНИЕ ТОЧКИ***********************************-->
+                    <div class="list-group item list-group-item-action py-3 px-3 lh-sm border-bottom border-top">
+                        <div class="row">
+                            <div class="col-lg-2 align-items-center d-flex">
+                                 <i class="bi-geo-fill fs-1"></i>
+                            </div>
+                            <div class="col-lg-10">
+                                <div class="d-flex w-100 align-items-center justify-content-between">
+                                    <a href="#" class="mb-1 fs-5 text-dark text-decoration-none" onclick="showElement('point_show')">Отображение точки</a>
+                                </div>
+                                <div class="mt-1 mb-1 small">
+                                    Принимает вводимые координаты в формате: широта, долгота. Отмечает точку на карте при помощи модифицируемого маркера.
+                                </div>
+                            </div>
+                        </div>
+                        <div hidden id="point_show">
+                            <div class="list-group item list-group-item-action py-3 lh-sm">
+                                <strong class="mb-1 mx-0 px-0">Введите координаты</strong>
+                                <form id="coordinatesForm">
+                                    <label for="point" class="form-label">Точка (широта, долгота):</label>
+                                    <input type="text" class="form-control" id="point" placeholder="Например: 55.7557, 37.6176">
+                                    <button type="submit" class="btn btn-secondary w-100 mt-2">
+                                        Перейти к точке
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <!--************************************************************************************-->
+
+
+                    <!--***********************************ОБРАБОТКА ГЕОХЕША***********************************-->
+                    <div class="list-group item list-group-item-action py-3 px-3 lh-sm border-bottom border-top">
+                        <div class="row">
+                            <div class="col-lg-2 align-items-center d-flex">
+                                 <i class="bi bi-hash fs-1"></i>
+                            </div>
+                            <div class="col-lg-10">
+                                <div class="d-flex w-100 align-items-center justify-content-between">
+                                    <a href="#" class="mb-1 fs-5 text-dark text-decoration-none"  onclick="showElement('geohash_form')">Обработка геохэша</a>
+                                </div>
+                                <div class="mt-1 mb-1 small">
+                                    Конвертирует вводимый геохэш в коордианты и наоборот.
+                                </div>
+                            </div>
+                        </div>
+                        <div hidden id="geohash_form">
+                            <div class="list-group item list-group-item-action py-3 lh-sm">
+                                <strong class="mb-1 mx-0 px-0">Введите геохэш или координаты:</strong>
+                                <form id="decodeForm">
+                                    <input type="text" class="form-control" id="geohash" placeholder="Например: ucfv1hjbyggz или 55.7557, 37.6176">
+                                    <strong class="mb-1 mx-0 px-0" id="result_geohash"></strong>
+                                    <div class="row mt-2">
+                                        <div class="col-lg-6">
+                                            <button type="submit" action="decodeAction" class="btn btn-secondary w-100 ">
+                                                Декодировать
+                                            </button>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <button type="submit" action="encodeAction" class="btn btn-secondary w-100 ">
+                                                Кодировать
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <!--************************************************************************************-->
+
+
+                    <!--***********************************ВЫДЕЛЕНИЕ ОБЛАСТИ***********************************-->
+                        <div class="list-group item list-group-item-action py-3 px-3 lh-sm border-bottom border-top">
+                            <div class="row">
+                                <div class="col-lg-2 align-items-center d-flex">
+                                     <i class="bi bi-crop fs-1"></i>
+                                </div>
+                                <div class="col-lg-10">
+                                    <div class="d-flex w-100 align-items-center justify-content-between">
+                                        <a href="#" class="mb-1 fs-5 text-dark text-decoration-none"  onclick="showElement('area_form')">Выделить область</a>
+                                    </div>
+                                    <div class="mt-1 mb-1 small">
+                                        Принимает геохэш и выделяет соответствующую область на карте.
+                                    </div>
+                                </div>
+                            </div>
+                            <div hidden id="area_form">
+                                <div class="list-group item list-group-item-action py-3 lh-sm">
+                                    <strong class="mb-1 mx-0 px-0">Введите геохэш:</strong>
+                                    <form id="areaForm">
+                                        <input type="text" class="form-control" id="geohash_for_area" placeholder="Например: ucfv1hjbyggz">
+                                            <button type="submit" action="geohash_for_area" class="btn btn-secondary w-100 mt-2">
+                                                Выделить область
+                                            </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <!--************************************************************************************-->
+
+
+                     <!--***********************************ОТРИСОВКА МАРШРУТА***********************************-->
+                    <div class="list-group item list-group-item-action py-3 px-3 lh-sm border-bottom border-top">
+                        <div class="row">
+                            <div class="col-lg-2 align-items-center d-flex">
+                                 <i class="bi bi-bezier2 fs-1"></i>
+                            </div>
+                            <div class="col-lg-10">
+                                <div class="d-flex w-100 align-items-center justify-content-between">
+                                    <a href="#" class="mb-1 fs-5 text-dark text-decoration-none" onclick="showElement('route')">Построение маршрута</a>
+                                </div>
+                                <div class="mt-1 mb-1 small">
+                                    Строит перемещения маршрут на карте, при помощи двух вводимых координат.
+                                </div>
+                            </div>
+                        </div>
+                        <div hidden id="route">
+                            <div class="list-group item list-group-item-action py-3 lh-sm">
+                                <strong class="mb-1 mx-0 px-0">Введите координаты</strong>
+                                <form method="post">
+                                    {% csrf_token %}
+                                    {{ form_route.as_p }}
+                                    <button type="submit" name="route" class="btn btn-secondary w-100 mt-2">
+                                        Построить маршрут
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!--***************************ЗАГРУЗКА ФАЙЛА***************************-->
+                    <div class="list-group item list-group-item-action py-3 px-3 lh-sm border-bottom border-top" >
+                        <div class="row">
+                            <div class="col-lg-2 align-items-center d-flex">
+                                 <i class="bi bi-upload fs-1"></i>
+                            </div>
+                        <div class="col-lg-10">
+                            <div class="d-flex w-100 align-items-center justify-content-between">
+                                <a href="#" class="mb-1 fs-5 text-dark text-decoration-none" onclick="showElement('upload_file')">Загрузка файла</a>
+                            </div>
+                            <div class="mt-1 mb-1 small">
+                                Принимает загружаемый файл в формате: csv, xlsx, с указанием имени слоя и типа.
+                            </div>
+                        </div>
+                    </div>
+                        <div hidden id="upload_file">
+                            <div class="list-group item list-group-item-action lh-sm border-bottom">
+                                <div class="card-body">
+                                    <form method="post" enctype="multipart/form-data">
+                                        {% csrf_token %}
+
+                                        <!-- Отображение общих ошибок формы -->
+                                        {% if form.errors %}
+                                            <div class="alert alert-danger">
+                                                <strong>Ошибка!</strong> Пожалуйста, исправьте ошибки ниже.
+                                            </div>
+                                        {% endif %}
+
+                                        <!-- Поле layer_name -->
+                                        <div class="form-group mb-3">
+                                            <label for="{{ form.layer_name.id_for_label }}">
+                                                {{ form.layer_name.label }}
+                                            </label>
+                                            {{ form.layer_name }}
+                                            {% if form.layer_name.help_text %}
+                                                <small class="form-text text-muted">
+                                                    {{ form.layer_name.help_text }}
+                                                </small>
+                                            {% endif %}
+                                            {% for error in form.layer_name.errors %}
+                                                <div class="alert alert-danger">
+                                                    {{ error }}
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+
+                                        <!-- Поле layer_type -->
+                                        <div class="form-group mb-3">
+                                            <label for="{{ form.layer_type.id_for_label }}">
+                                                {{ form.layer_type.label }}
+                                            </label>
+                                            {{ form.layer_type }}
+                                            {% for error in form.layer_type.errors %}
+                                                <div class="alert alert-danger">
+                                                    {{ error }}
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+
+                                        <!-- Поле layer_file -->
+                                        <div class="form-group mb-3">
+                                            <label for="{{ form.layer_file.id_for_label }}">
+                                                {{ form.layer_file.label }}
+                                            </label>
+                                            {{ form.layer_file }}
+                                            {% if form.layer_file.help_text %}
+                                                <small class="form-text text-muted">
+                                                    {{ form.layer_file.help_text }}
+                                                </small>
+                                            {% endif %}
+                                            {% for error in form.layer_file.errors %}
+                                                <div class="alert alert-danger">
+                                                    {{ error }}
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+
+                                        <button type="submit" class="btn btn-primary w-100">Загрузить слой</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                  <!--************************************************************-->
+
+
+                    <!--***************************ВЫБОР СЛОЕВ***************************-->
+                    <div class="list-group item list-group-item-action py-3 px-3 lh-sm border-bottom border-top" >
+                        <div class="row">
+                            <div class="col-lg-2 align-items-center d-flex">
+                                 <i class="bi bi-layers fs-1"></i>
+                            </div>
+                            <div class="col-lg-10">
+                                <div class="d-flex w-100 align-items-center justify-content-between">
+                                    <a href="#" class="mb-1 fs-5 text-dark text-decoration-none" onclick="showElement('layer_show')">Выбор слоя</a>
+                                </div>
+                                <div class="mt-1 mb-1 small">
+                                    После загрузки файла выберите слои для их визуализации.
+                                </div>
+                            </div>
+                        </div>
+                        <div hidden id="layer_show">
+                            <form method="post" action="{% url 'maps:update_layers' %}" class="card-body">
+                                {% csrf_token %}
+                                {% for layer in layers %}
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox"
+                                                name="layer_{{ layer.id }}"
+                                                id="layer_{{ layer.id }}"
+                                                {% if layer.is_active %}checked{% endif %}>
+                                        <label class="form-check-label" for="layer_{{ layer.id }}">
+                                            {{ layer.name }} ({{ layer.get_layer_type_display }}
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                                    <button type="submit" class="btn btn-secondary w-100">Обновить карту</button>
+                            </form>
+                        </div>
+                    </div>
+                    <!--*********************************************************-->
+</div>
+                </div>
+
+
+            <!--***************************КАРТА***************************-->
+
+            <div class="col-lg-9 bg-light p-3" style="height: 100%">
+                <div class="card-body">
+                    <div id="map"  style="height: 80vh; width: 100%; border-radius: 10px; border: 1px solid grey; "></div>
+                </div>
+            </div>
+            <!--*********************************************************-->
+
+        </div>
+    </div>
+</main>
+<script>
+
+//  *******ФУНКЦИЯ ДЛЯ РАСКРЫТИЯ СПИСКОВ МЕТОДОВ **********
+    function showElement(id){
+        const element = document.getElementById(id)
+        if (element.hidden === true){
+            element.hidden = false;
+        }
+        else{
+            element.hidden = true;
+        }
+    };
+//  ******************************************************
+
+
+//****************** ФУНКЦИЯ ДЛЯ ОТОБРАЖЕНИЕ КАРТЫ **********
+    var map = L.map('map', {
+        center: [56,33],
+        zoom: 4,
+        minZoom: 2,
+		maxZoom: 22,
+        zoomDelta: 2,
+        zoomSnap: 2,
+        maxNativeZoom: 8,
+        crs: L.CRS.EPSG3395
+});
+    L.tileLayer(`../static/tiles/{z}_{x}_{y}.png`,{
+        attribution: "Картографический сервис ЦК АГиГИС",
+	}).addTo(map);
+//**********************************************************
+
+
+//  *******ФУНКЦИЯ ДЛЯ НАСТРОЙКИ КАСТОМНОЙ ИКОНКИ **********
+    function createCustomIcon(color) {
+        let url = `../static/icons/icon_${color}.png`;
+        return L.icon({
+            iconUrl: url,
+            iconSize: [40, 40],
+            iconAnchor: [20, 41],
+            popupAnchor: [0, -35]
+        });
+
+    };
+
+    window.updateMarkerColor = function (color, markerId) {
+        const marker = Object.values(map._layers).find(layer => layer._leaflet_id === markerId);
+        if (marker) {
+            marker.setIcon(createCustomIcon(color));
+        }
+    };
+//  ******************************************************
+
+
+//  *******ФУНКЦИЯ ДЛЯ ОТОБРАЖЕНИЯ ТОЧКИ**********
+    let marker_for_point;
+    document.getElementById('coordinatesForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const point = document.getElementById('point').value.split(',').map(Number);
+        if (marker_for_point) map.removeLayer(marker_for_point);
+        marker_for_point = L.marker([point[0], point[1]], { icon: createCustomIcon('black') }).addTo(map);
+        const bounds = L.latLngBounds([point]);
+
+        const popupContent = `
+        <div>
+            <strong class="mb-0" style="font-size: 14px">Координаты точки. <br>Широта: ${point[0]} <br>Долгота: ${point[1]}</strong><br>
+            <strong class="mb-0" style="font-size: 14px">Выбери цвет метки: </strong>
+            <div class="d-flex">
+                <div class='rounded-circle' style="width: 25px; height: 25px; background: red" onclick="updateMarkerColor('red', ${marker_for_point._leaflet_id})">.</div>
+                <div class='rounded-circle' style="width: 25px; height: 25px; background: orange" onclick="updateMarkerColor('yellow', ${marker_for_point._leaflet_id})">.</div>
+                <div class='rounded-circle' style="width: 25px; height: 25px; background: blue" onclick="updateMarkerColor('blue', ${marker_for_point._leaflet_id})">.</div>
+                <div class='rounded-circle' style="width: 25px; height: 25px; background: green" onclick="updateMarkerColor('green', ${marker_for_point._leaflet_id})">.</div>
+                <div class='rounded-circle' style="width: 25px; height: 25px; background: grey" onclick="updateMarkerColor('grey', ${marker_for_point._leaflet_id})">.</div>
+                <div class='rounded-circle' style="width: 25px; height: 25px; background: black" onclick="updateMarkerColor('black', ${marker_for_point._leaflet_id})">.</div>
+            </div>
+        </div>`;
+        marker_for_point.bindPopup(popupContent).openPopup();
+        map.fitBounds(bounds, {
+            maxZoom: 8
+        });
+    });
+//  ******************************************************
+
+
+//  *******ФУНКЦИЯ ОТМЕТКИ ТОЧКИ НА КАРТЕ ПРИ ПОМОЩИ ДВОЙНОГО КЛИКА**********
+    var user_markers = [];
+    map.on('dblclick', function (e) {
+        let marker = new L.Marker(e.latlng, {icon: createCustomIcon('black'), draggable: true}).addTo(map);
+
+        const popupContent = `
+        <div>
+            <strong class="mb-0" style="font-size: 14px">Координаты точки. <br>Широта: ${e.latlng.lat} <br>Долгота: ${e.latlng.lng}</strong><br>
+            <strong class="mb-0" style="font-size: 14px">Выбери цвет метки: </strong>
+            <div class="d-flex">
+                <div class='rounded-circle' style="width: 25px; height: 25px; background: red" onclick="updateMarkerColor('red', ${marker._leaflet_id})">.</div>
+                <div class='rounded-circle' style="width: 25px; height: 25px; background: orange" onclick="updateMarkerColor('yellow', ${marker._leaflet_id})">.</div>
+                <div class='rounded-circle' style="width: 25px; height: 25px; background: blue" onclick="updateMarkerColor('blue', ${marker._leaflet_id})">.</div>
+                <div class='rounded-circle' style="width: 25px; height: 25px; background: green" onclick="updateMarkerColor('green', ${marker._leaflet_id})">.</div>
+                <div class='rounded-circle' style="width: 25px; height: 25px; background: grey" onclick="updateMarkerColor('grey', ${marker._leaflet_id})">.</div>
+                <div class='rounded-circle' style="width: 25px; height: 25px; background: black" onclick="updateMarkerColor('black', ${marker._leaflet_id})">.</div>
+            </div>
+        </div>`;
+        marker.bindPopup(popupContent).openPopup();
+        user_markers.push(marker);
+    });
+    map.doubleClickZoom.disable();
+
+//  **************************************************************************ы
+
+
+//  *******ФУНКЦИЯ ДЛЯ ПОСТРОЕНИЯ МАРШРУТА**********
+    function drawRoute(points) {
+        if (points.length === 0) return;
+
+        var latLngs = points.map(p => L.latLng(p[0], p[1]));
+        var polyline = L.polyline(latLngs, {color: 'blue', weight: 5}).addTo(map);
+
+        L.marker(latLngs[0], {icon: createCustomIcon('black')}).addTo(map).bindPopup("Старт");
+        L.marker(latLngs[latLngs.length-1], {icon: createCustomIcon('black')}).addTo(map).bindPopup("Конец");
+
+        map.fitBounds(polyline.getBounds(), {maxZoom: 4, minZoom: 4});
+
+    }
+
+    var routePoints = {{ route_points|safe }}
+
+    document.addEventListener('DOMContentLoaded', function() {
+        drawRoute(routePoints);
+    });
+
+//  ******************************************************
+
+
+//  *******ФУНКЦИЯ ДЛЯ ОБРАБОТКИ ГЕОХЭША**********
+    const base32 = '0123456789bcdefghjkmnpqrstuvwxyz';
+
+
+    document.getElementById('decodeForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const inputValue = document.getElementById('geohash').value;
+        const button = e.submitter;
+        const action = button.getAttribute('action');
+        if (action === 'decodeAction') {
+            decode_value = decode(inputValue);
+            console.log(inputValue);
+            document.getElementById('result_geohash').innerHTML = `
+                <p>Результат: <br><strong>Широта: ${decode_value.lat} <br>Долгота: ${decode_value.lon}</strong></p>
+            `;
+        } else {
+            var encode_value = inputValue.split(',').map(Number);
+            encode_value = encode(encode_value[0], encode_value[1]);
+            document.getElementById('result_geohash').innerHTML = `
+                <p>Результат: <strong>${encode_value}</strong></p>
+            `;
+        }
+    })
+
+//  ***************************ОТРИСОВКА ОБЛАСТИ ОТ ГЕОХЕША***************************
+    document.getElementById('areaForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const inputValue = document.getElementById('geohash_for_area').value;
+        const geohash = bounds2(inputValue);
+        L.rectangle([[geohash.sw.lat, geohash.sw.lon], [geohash.ne.lat, geohash.ne.lon]], {
+            color: "#ff0000",
+            weight: 10,
+            fillOpacity: 0.2
+        }).addTo(map);
+
+        map.fitBounds([[geohash.sw.lat, geohash.sw.lon], [geohash.ne.lat, geohash.ne.lon]], {maxZoom: 8, minZoom: 4});
+    });
+
+
+//  ******************ФУНКЦИЯ КОДИРОВАНИЯ ГЕОХЭША**************************
+
+
+        function encode(lat,lon,precision){
+            if (typeof precision=='undefined'){
+                for (let p=1; p<=12; p++){
+                    const hash = encode(lat,lon,p);
+                    const posn = decode(hash);
+                    if (posn.lat==lat && posn.lon==lon) return hash;
+                }
+                precision = 12;
+            }
+            lat = Number(lat);
+            lon = Number(lon);
+            precision = Number(precision);
+            if (isNaN(lat) || isNaN(lon) || isNaN(precision)) throw new Error('Invalid geohash');
+
+            let idx = 0;
+            let bit = 0;
+            let evenBit = true;
+            let geohash = '';
+
+            let latMin = -90, latMax = 90;
+            let lonMin = -180, lonMax = 180;
+
+            while (geohash.length < precision){
+                if (evenBit){
+                    const lonMid = (lonMin + lonMax) / 2;
+                    if (lon>=lonMid){
+                        idx = idx*2 + 1;
+                        lonMin = lonMid;
+                    }else{
+                        idx = idx*2;
+                        lonMax = lonMid;
+                    }
+                } else {
+                    const latMid = (latMin + latMax) /2;
+                    if (lat >=latMid){
+                        idx = idx*2+1;
+                        latMin = latMid;
+                    }else{
+                        idx = idx*2;
+                        latMax = latMid;
+                    }
+                }
+                evenBit = !evenBit;
+                if(++bit==5){
+                    geohash += base32.charAt(idx);
+                    bit=0;
+                    idx=0;
+                }
+            }
+            return geohash;
+        }
+//  ******************************************************
+
+
+//  ******************ФУНКЦИЯ РАСКОДИРОВАНЯ ГЕОХЭША**************************
+        function decode(geohash){
+            const work_bounds = bounds2(geohash);
+            const latMin = work_bounds.sw.lat, lonMin = work_bounds.sw.lon;
+            const latMax = work_bounds.ne.lat, lonMax = work_bounds.ne.lon;
+            let lat = (latMin+latMax)/2;
+            let lon = (lonMin+lonMax)/2;
+            lat = lat.toFixed(Math.floor(2-Math.log(latMax-latMin)/Math.LN10));
+            lon = lon.toFixed(Math.floor(2-Math.log(lonMax-lonMin)/Math.LN10));
+            return {
+                lat:Number(lat),
+                lon:Number(lon)
+            };
+        }
+//  ******************************************************
+
+
+//  ******************ФУНКЦИЯ ОБЛАСТИ ГЕОХЭША?**************************
+        function bounds2(geohash){
+            console.log(geohash);
+            if (geohash.length == 0) throw new Error('Invalid geohash')
+            geohash = geohash.toLowerCase();
+            let evenBit = true;
+            let latMin = -90, latMax = 90;
+            let lonMin = -180, lonMax = 180;
+            for (let i=0; i<geohash.length; i++){
+                const chr = geohash.charAt(i);
+                const idx = base32.indexOf(chr);
+                if (idx == -1) throw new Error('Invalid geohash');
+                for (let n=4; n>=0; n--){
+                    const bitN = idx >> n & 1;
+                    if (evenBit){
+                        const lonMid = (lonMin+lonMax)/2;
+                        if (bitN==1){
+                            lonMin = lonMid;
+                        }else{
+                            lonMax=lonMid;
+                        }
+                    }else{
+                        const latMid = (latMin+latMax)/2;
+                        if (bitN == 1){
+                            latMin = latMid;
+                        }else{
+                            latMax = latMid;
+                        }
+                    }
+                    evenBit = !evenBit;
+                }
+            }
+            const bounds3 = {
+                sw:{
+                    lat:latMin,
+                    lon:lonMin
+                },
+                ne:{
+                    lat: latMax,
+                    lon: lonMax
+                }
+            }
+            console.log(bounds3);
+            return bounds3;
+        }
+//  *************************************************************************
+
+    {#var data = JSON.parse("{{ map_data|escapejs }}");#}
+
+
+    function zip(arrays) {
+        return arrays[0].map(function (_, i) {
+            return arrays.map(function (array) {
+                return array[i]
+            })
+        });
+    }
+
+
+
+
+// ******************НАСТРОЙКА СЛОЁВ**************************
+    {% for layer_data in active_layers_data %}
+        {% if layer_data %}
+            {% for feature in layer_data.features %}
+                L.polygon({{ feature.geometry.coordinates|safe }}, {
+                    color: '{{ feature.properties.color }}',
+                    fillOpacity: 0.5
+                })
+                .bindPopup("<b>{{ feature.properties.name }}</b><br>{{ feature.properties.text }}")
+                .addTo(map);
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
+
+
+// *************************************************************************
+</script>
+</body>
+</html>
